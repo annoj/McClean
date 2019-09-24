@@ -7,6 +7,11 @@ import(
 	"os"
 )
 
+// Value of 0 represents clean, 1 represents dirty.
+// RoomState[0] represents floor.
+// RoomState[1] represents windows.
+// RoomState[2] represents trash.
+// RoomState[3] represents desk.
 type RoomState [4]int
 
 func (r *RoomState) initRoomState() {
