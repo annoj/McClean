@@ -30,7 +30,7 @@ func (l *Level) initLevel() {
 
 func (l *Level) messUpLevel(degree int) {
 	for i := 0; i < degree; i++ {
-		l[rand.Intn(len(l))][rand.Intn(len(l[0]))] = 1
+		l[rand.Intn(len(l))][rand.Intn(len(l[0]))]++
 	}
 }
 
@@ -53,7 +53,7 @@ func (c *McClean) determineNextAction(l *Level) {
 		c.action = -1
 	}
 	for i := c.action + 1; i < len(l[c.currentRoom]); i++ {
-		if l[c.currentRoom][i] == 1 {
+		if l[c.currentRoom][i] > 0 {
 			c.action = i
 			return
 		}
