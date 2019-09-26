@@ -7,7 +7,7 @@ import(
 	"time"
 )
 
-// Value of 0 represents clean, 1 represents dirty.
+// Value of 0 represents clean, value > 0 represents degree of dirty.
 // RoomState[0] represents floor.
 // RoomState[1] represents windows.
 // RoomState[2] represents trash.
