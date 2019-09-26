@@ -20,7 +20,7 @@ func (r *RoomState) initRoomState() {
 	}
 }
 
-type Level [5]RoomState
+type Level [6]RoomState
 
 func (l *Level) initLevel() {
 	for i, _ := range l {
@@ -44,6 +44,8 @@ func (c *McClean) initMcClean() {
 	c.action = 0
 }
 
+// ISSUE: McClean starts with last action, could result in infinite loop
+// 		  should start with i := c.action + 1 and handle i == 5
 func (c *McClean) determineNextAction(l *Level) {
 	for i := c.action; i < len(l[c.currentRoom]); i++ {
 		if l[c.currentRoom][i] == 1 {
@@ -90,7 +92,7 @@ func main() {
 	for true {
 		log.Print(level, mcClean)
 		mcClean.doAction(&level)
-		level.messUpLevel(3)
+		level.messUpLevel(1)
 		input.Scan()
 	}
 }
