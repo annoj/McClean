@@ -44,10 +44,15 @@ func (c *McClean) initMcClean() {
 	c.action = 0
 }
 
-// ISSUE: McClean starts with last action, could result in infinite loop
-// 		  should start with i := c.action + 1 and handle i == 5
+// Determine McClean's next action.
+// Start loop on c.action + 1 to not redo last action.
+// If c.action initially is 5 (last action was change room) then set to -1 
+// to start loop with c.action + 1 == 0.
 func (c *McClean) determineNextAction(l *Level) {
-	for i := c.action; i < len(l[c.currentRoom]); i++ {
+	if c.action == 5 {
+		c.action = -1
+	}
+	for i := c.action + 1; i < len(l[c.currentRoom]); i++ {
 		if l[c.currentRoom][i] == 1 {
 			c.action = i
 			return
@@ -67,7 +72,6 @@ func (c *McClean) doAction(l *Level) {
 
 func (c *McClean) changeRoom(l *Level) {
 	c.currentRoom = (c.currentRoom + 1) % len(l)
-	c.action = 0
 }
 
 func (c *McClean) clean(level *Level) {
