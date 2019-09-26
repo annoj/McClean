@@ -1,10 +1,10 @@
 package main
 
 import(
-	"bufio"
+	"flag"
 	"log"
 	"math/rand"
-	"os"
+	"time"
 )
 
 // Value of 0 represents clean, 1 represents dirty.
@@ -76,6 +76,17 @@ func (c *McClean) clean(level *Level) {
 
 func main() {
 
+	// Parse command line args
+	var messUpArg int
+	flag.IntVar(&messUpArg, "messup", 1, "Specify how many items to mess up in every iteration.")
+
+	var speedArg int
+	flag.IntVar(&speedArg, "speed", 1000, "Specify the pause in each iteration in milliseconds.")
+
+	var seedArg int
+	flag.IntVar(&seedArg, "seed", 123, "Specify random number generator seed.")
+	flag.Parse()
+
 	// Seed random number generator
 	rand.Seed(123)
 
@@ -88,11 +99,10 @@ func main() {
 	mcClean.initMcClean()
 
 	// Main Loop
-	input := bufio.NewScanner(os.Stdin)
 	for true {
 		log.Print(level, mcClean)
 		mcClean.doAction(&level)
-		level.messUpLevel(1)
-		input.Scan()
+		level.messUpLevel(messUpArg)
+		time.Sleep(time.Duration(speedArg) * time.Millisecond)
 	}
 }
