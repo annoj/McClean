@@ -34,6 +34,18 @@ func (l *Level) messUpLevel(degree int) {
 	}
 }
 
+func (l *Level) getAverageDirtyness() float64 {
+	var avgDirtness float64 = 0
+	for _, room := range l {
+		var dirtyness int = 0
+		for _, item := range room {
+			dirtyness += item
+		}
+		avgDirtness += float64(dirtyness)
+	}
+	return avgDirtness / float64(len(l))
+}
+
 type McClean struct {
 	currentRoom		int
 	action			int
@@ -127,7 +139,7 @@ func main() {
 
 	// Main Loop
 	for true {
-		log.Print(level, mcClean)
+		log.Print(level, mcClean, level.getAverageDirtyness())
 		mcClean.doAction(&level)
 		level.messUpLevel(messUpArg)
 		time.Sleep(time.Duration(speedArg) * time.Millisecond)
