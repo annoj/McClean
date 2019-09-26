@@ -35,30 +35,53 @@ func (l *Level) messUpLevel(degree int) {
 }
 
 type McClean struct {
-	currentRoom	int
-	action		int
+	currentRoom		int
+	action			int
+	avgDirtyness	float64
 }
 
 func (c *McClean) initMcClean() {
 	c.currentRoom = 0
 	c.action = 0
+	c.avgDirtyness = 0
 }
 
 // Determine McClean's next action.
-// Start loop on c.action + 1 to not redo last action.
-// If c.action initially is 5 (last action was change room) then set to -1 
-// to start loop with c.action + 1 == 0.
 func (c *McClean) determineNextAction(l *Level) {
-	if c.action == 5 {
-		c.action = -1
+
+	// determine degree of dirty for whole room
+	var dirtyness int = 0
+	for _, item := range l[c.currentRoom] {
+		dirtyness += item
 	}
-	for i := c.action + 1; i < len(l[c.currentRoom]); i++ {
-		if l[c.currentRoom][i] > 0 {
-			c.action = i
+
+	// update avgDirtyness
+	c.avgDirtyness += (float64(dirtyness) - c.avgDirtyness) / 10
+	if c.avgDirtyness < 0 {
+		c.avgDirtyness = 0
+	}
+
+	// if above average
+	if float64(dirtyness) > c.avgDirtyness {
+
+			// determine dirtiest item
+			var dirtiest int
+			var maxDirtyness int = 0
+			for i, item := range l[c.currentRoom] {
+				if item > maxDirtyness {
+					maxDirtyness = item
+					dirtiest = i
+				}
+			}
+
+			// clean that item
+			c.action = dirtiest
 			return
-		}
-	}
+	} else {
+
+	// else change room
 	c.action = 5
+	}
 }
 
 func (c *McClean) doAction(l *Level) {
