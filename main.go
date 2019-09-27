@@ -8,12 +8,17 @@ import(
 	"time"
 )
 
+const(
+	ITEMS_COUNT = 4
+	ROOMS_COUNT = 6
+)
+
 // Value of 0 represents clean, value > 0 represents degree of dirty.
 // RoomState[0] represents floor.
 // RoomState[1] represents windows.
 // RoomState[2] represents trash.
 // RoomState[3] represents desk.
-type RoomState [4]int
+type RoomState [ITEMS_COUNT]int
 
 func (r *RoomState) initRoomState() {
 	for i, _ := range r {
@@ -21,7 +26,7 @@ func (r *RoomState) initRoomState() {
 	}
 }
 
-type Level [6]RoomState
+type Level [ROOMS_COUNT]RoomState
 
 func (l *Level) initLevel() {
 	for i, _ := range l {
