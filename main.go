@@ -4,6 +4,7 @@ import(
 	"flag"
 	"log"
 	"math/rand"
+	"os"
 	"time"
 )
 
@@ -114,6 +115,9 @@ func (c *McClean) clean(level *Level) {
 }
 
 func main() {
+
+	// Set log output to stdout
+	log.SetOutput(os.Stdout)
 
 	// Parse command line args
 	var messUpArg int
