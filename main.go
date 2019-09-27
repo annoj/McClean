@@ -34,9 +34,11 @@ func (l *Level) initLevel() {
 	}
 }
 
-func (l *Level) messUpLevel(degree int) {
+func (l *Level) messUpLevel(degree int, u *LevelRoomUsage) {
 	for i := 0; i < degree; i++ {
-		l[rand.Intn(len(l))][rand.Intn(len(l[0]))]++
+		var room int = rand.Intn(ROOMS_COUNT)
+		var item int = rand.Intn(ITEMS_COUNT)
+		l[room][item] += u[room]
 	}
 }
 
@@ -50,6 +52,14 @@ func (l *Level) getAverageDirtyness() float64 {
 		avgDirtness += float64(dirtyness)
 	}
 	return avgDirtness / float64(len(l))
+}
+
+type LevelRoomUsage [ROOMS_COUNT]int
+
+func (u *LevelRoomUsage) initLevelRoomUsage(ui int) {
+	for i, _ := range u {
+		u[i] = rand.Intn(ui) + 1 // +1 to avoid messing up by 0 and represent arg value properly
+	}
 }
 
 type McClean struct {
@@ -133,6 +143,9 @@ func main() {
 
 	var seedArg int
 	flag.IntVar(&seedArg, "seed", 123, "Specify random number generator seed.")
+
+	var roomUsageIntervalArg int
+	flag.IntVar(&roomUsageIntervalArg, "usage", 3, "Specify maximal room usage. Usage is determined randomly, depending on seed.")
 	flag.Parse()
 
 	// Seed random number generator
@@ -142,6 +155,11 @@ func main() {
 	var level Level
 	level.initLevel()
 
+	// Room usage
+	var usage LevelRoomUsage
+	usage.initLevelRoomUsage(roomUsageIntervalArg)
+	log.Print(usage)
+
 	// McClean
 	var mcClean McClean
 	mcClean.initMcClean()
@@ -150,7 +168,7 @@ func main() {
 	for true {
 		log.Print(level, mcClean, level.getAverageDirtyness())
 		mcClean.doAction(&level)
-		level.messUpLevel(messUpArg)
+		level.messUpLevel(messUpArg, &usage)
 		time.Sleep(time.Duration(speedArg) * time.Millisecond)
 	}
 }
