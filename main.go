@@ -11,13 +11,16 @@ import(
 const(
 	ITEMS_COUNT = 4
 	ROOMS_COUNT = 6
+	CHANGE_ROOM = ITEMS_COUNT + 1
 )
 
-// Value of 0 represents clean, value > 0 represents degree of dirty.
+// ---------- ROOMSTATE ---------- //
+
 // RoomState[0] represents floor.
 // RoomState[1] represents windows.
 // RoomState[2] represents trash.
 // RoomState[3] represents desk.
+// Value of 0 represents clean, value > 0 represents degree of dirty.
 type RoomState [ITEMS_COUNT]int
 
 func (r *RoomState) initRoomState() {
@@ -25,6 +28,8 @@ func (r *RoomState) initRoomState() {
 		r[i] = rand.Intn(2)
 	}
 }
+
+// ---------- LEVEL ----------- //
 
 type Level [ROOMS_COUNT]RoomState
 
@@ -54,6 +59,8 @@ func (l *Level) getAverageDirtyness() float64 {
 	return avgDirtness / float64(ROOMS_COUNT)
 }
 
+// ---------- LEVELROOMUSAGE ---------- //
+
 type LevelRoomUsage [ROOMS_COUNT]int
 
 func (u *LevelRoomUsage) initLevelRoomUsage(ui int) {
@@ -61,6 +68,8 @@ func (u *LevelRoomUsage) initLevelRoomUsage(ui int) {
 		u[i] = rand.Intn(ui) + 1 // +1 to avoid messing up by 0 and represent arg value properly
 	}
 }
+
+// ---------- MCCLEAN ---------- //
 
 type McClean struct {
 	currentRoom		int
@@ -108,16 +117,7 @@ func (c *McClean) determineNextAction(l *Level) {
 	} else {
 
 	// else change room
-	c.action = 5
-	}
-}
-
-func (c *McClean) doAction(l *Level) {
-	c.determineNextAction(l)
-	if c.action == 5 {
-		c.changeRoom(l)
-	} else {
-		c.clean(l)
+	c.action = CHANGE_ROOM
 	}
 }
 
@@ -128,6 +128,17 @@ func (c *McClean) changeRoom(l *Level) {
 func (c *McClean) clean(level *Level) {
 	level[c.currentRoom][c.action] = 0
 }
+
+func (c *McClean) doAction(l *Level) {
+	c.determineNextAction(l)
+	if c.action == CHANGE_ROOM {
+		c.changeRoom(l)
+	} else {
+		c.clean(l)
+	}
+}
+
+// ---------- GENERAL FUNCTIONS ---------- //
 
 func printState(l *Level, m *McClean, csv bool) {
 	if csv {
