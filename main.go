@@ -2,9 +2,9 @@ package main
 
 import(
 	"flag"
+	"fmt"
 	"log"
 	"math/rand"
-	"os"
 	"time"
 )
 
@@ -51,7 +51,7 @@ func (l *Level) getAverageDirtyness() float64 {
 		}
 		avgDirtness += float64(dirtyness)
 	}
-	return avgDirtness / float64(len(l))
+	return avgDirtness / float64(ROOMS_COUNT)
 }
 
 type LevelRoomUsage [ROOMS_COUNT]int
@@ -122,17 +122,33 @@ func (c *McClean) doAction(l *Level) {
 }
 
 func (c *McClean) changeRoom(l *Level) {
-	c.currentRoom = (c.currentRoom + 1) % len(l)
+	c.currentRoom = (c.currentRoom + 1) % ROOMS_COUNT
 }
 
 func (c *McClean) clean(level *Level) {
 	level[c.currentRoom][c.action] = 0
 }
 
-func main() {
+func printState(l *Level, m *McClean, csv bool) {
+	if csv {
+		for i := 0; i < ROOMS_COUNT; i++ {
+			for j := 0; j < ITEMS_COUNT; j++ {
+				fmt.Printf("%d,", l[i][j])
+			}
+		}
+		fmt.Printf("%d,%f,%f\n", m.currentRoom, m.avgDirtyness, l.getAverageDirtyness())
+	} else {
+		for i := 0; i < ROOMS_COUNT; i++ {
+			fmt.Printf("Room %d: ", i)
+			for j := 0; j < ITEMS_COUNT; j++ {
+				fmt.Printf("%2d ", l[i][j])
+			}
+		}
+		fmt.Printf("McClean: currentRoom = %d, avgDirtness = %2.2f Average Dirtyness: %2.2f\n", m.currentRoom, m.avgDirtyness, l.getAverageDirtyness())
+	}
+}
 
-	// Set log output to stdout
-	log.SetOutput(os.Stdout)
+func main() {
 
 	// Parse command line args
 	var messUpArg int
@@ -146,7 +162,12 @@ func main() {
 
 	var roomUsageIntervalArg int
 	flag.IntVar(&roomUsageIntervalArg, "usage", 3, "Specify maximal room usage. Usage is determined randomly, depending on seed.")
+
+	// TODO: Is this idiomatic?
+	var csvArg bool
+	b := flag.Bool("csv", false, "Output state in csv format.")
 	flag.Parse()
+	csvArg = *b
 
 	// Seed random number generator
 	rand.Seed(int64(seedArg))
@@ -158,7 +179,7 @@ func main() {
 	// Room usage
 	var usage LevelRoomUsage
 	usage.initLevelRoomUsage(roomUsageIntervalArg)
-	log.Print(usage)
+	log.Print("Room usage: ", usage)
 
 	// McClean
 	var mcClean McClean
@@ -166,7 +187,7 @@ func main() {
 
 	// Main Loop
 	for true {
-		log.Print(level, mcClean, level.getAverageDirtyness())
+		printState(&level, &mcClean, csvArg)
 		mcClean.doAction(&level)
 		level.messUpLevel(messUpArg, &usage)
 		time.Sleep(time.Duration(speedArg) * time.Millisecond)
