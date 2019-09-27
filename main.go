@@ -136,7 +136,7 @@ func main() {
 	flag.Parse()
 
 	// Seed random number generator
-	rand.Seed(seedArg)
+	rand.Seed(int64(seedArg))
 
 	// Level
 	var level Level
