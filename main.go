@@ -147,7 +147,7 @@ func printState(l *Level, m *McClean, csv bool) {
 				fmt.Printf("%d,", l[i][j])
 			}
 		}
-		fmt.Printf("%d,%f,%f\n", m.currentRoom, m.avgDirtyness, l.getAverageDirtyness())
+		fmt.Printf("%d,%d,%f,%f\n", m.currentRoom, m.action, m.avgDirtyness, l.getAverageDirtyness())
 	} else {
 		for i := 0; i < ROOMS_COUNT; i++ {
 			fmt.Printf("Room %d: ", i)
@@ -155,7 +155,7 @@ func printState(l *Level, m *McClean, csv bool) {
 				fmt.Printf("%2d ", l[i][j])
 			}
 		}
-		fmt.Printf("McClean: currentRoom = %d, avgDirtness = %2.2f Average Dirtyness: %2.2f\n", m.currentRoom, m.avgDirtyness, l.getAverageDirtyness())
+		fmt.Printf("McClean: currentRoom = %d, action = %d, avgDirtness = %2.2f Average Dirtyness: %2.2f\n", m.currentRoom, m.action, m.avgDirtyness, l.getAverageDirtyness())
 	}
 }
 
