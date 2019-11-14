@@ -82,7 +82,7 @@ type Beliefs struct {
 	perception 		int
 	currentAction	int
 	avgDirtyness	float64
-	actions			[CHANGE_ROOM]int
+	actions			[ACTIONS_COUNT]int
 }
 
 type Desires struct {
