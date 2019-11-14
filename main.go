@@ -73,8 +73,9 @@ func (u *LevelRoomUsage) initLevelRoomUsage(ui int) {
 
 type Beliefs struct {
 	currentRoom		int
-	action			int
+	currentAction	int
 	avgDirtyness	float64
+	actions			[CHANGE_ROOM]int
 }
 
 // ---------- DESIRES ---------- //
@@ -91,8 +92,11 @@ type McClean struct {
 
 func (c *McClean) initMcClean() {
 	c.beliefs.currentRoom = 0
-	c.beliefs.action = 0
+	c.beliefs.currentAction = 0
 	c.beliefs.avgDirtyness = 0
+	for i := 0; i == CHANGE_ROOM; i++ {
+		c.beliefs.actions[i] = i
+	} 
 }
 
 // Determine McClean's next action.
@@ -124,12 +128,12 @@ func (c *McClean) determineNextAction(l *Level) {
 			}
 
 			// clean that item
-			c.beliefs.action = dirtiest
+			c.beliefs.currentAction = dirtiest
 			return
 	} else {
 
 	// else change room
-	c.beliefs.action = CHANGE_ROOM
+	c.beliefs.currentAction = CHANGE_ROOM
 	}
 }
 
@@ -138,12 +142,12 @@ func (c *McClean) changeRoom(l *Level) {
 }
 
 func (c *McClean) clean(level *Level) {
-	level[c.beliefs.currentRoom][c.beliefs.action] = 0
+	level[c.beliefs.currentRoom][c.beliefs.currentAction] = 0
 }
 
 func (c *McClean) doAction(l *Level) {
 	c.determineNextAction(l)
-	if c.beliefs.action == CHANGE_ROOM {
+	if c.beliefs.currentAction == CHANGE_ROOM {
 		c.changeRoom(l)
 	} else {
 		c.clean(l)
@@ -159,7 +163,7 @@ func printState(l *Level, m *McClean, csv bool) {
 				fmt.Printf("%d,", l[i][j])
 			}
 		}
-		fmt.Printf("%d,%d,%f,%f\n", m.beliefs.currentRoom, m.beliefs.action, m.beliefs.avgDirtyness, l.getAverageDirtyness())
+		fmt.Printf("%d,%d,%f,%f\n", m.beliefs.currentRoom, m.beliefs.currentAction, m.beliefs.avgDirtyness, l.getAverageDirtyness())
 	} else {
 		for i := 0; i < ROOMS_COUNT; i++ {
 			fmt.Printf("Room %d: ", i)
@@ -167,7 +171,7 @@ func printState(l *Level, m *McClean, csv bool) {
 				fmt.Printf("%2d ", l[i][j])
 			}
 		}
-		fmt.Printf("McClean: currentRoom = %d, action = %d, avgDirtness = %2.2f Average Dirtyness: %2.2f\n", m.beliefs.currentRoom, m.beliefs.action, m.beliefs.avgDirtyness, l.getAverageDirtyness())
+		fmt.Printf("McClean: currentRoom = %d, currentAction = %d, avgDirtness = %2.2f Average Dirtyness: %2.2f\n", m.beliefs.currentRoom, m.beliefs.currentAction, m.beliefs.avgDirtyness, l.getAverageDirtyness())
 	}
 }
 
