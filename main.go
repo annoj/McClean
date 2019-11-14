@@ -193,7 +193,7 @@ func printState(l *Level, m *McClean, csv bool) {
 				fmt.Printf("%d,", l[i][j])
 			}
 		}
-		fmt.Printf("%d,%d,%f,%f\n", m.beliefs.currentRoom, m.beliefs.currentAction, m.beliefs.avgDirtyness, l.getAverageDirtyness())
+		fmt.Printf("%d,%d,%f,%f\n", m.beliefs.currentRoom, m.intention, m.beliefs.avgDirtyness, l.getAverageDirtyness())
 	} else {
 		for i := 0; i < ROOMS_COUNT; i++ {
 			fmt.Printf("Room %d: ", i)
