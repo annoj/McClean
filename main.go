@@ -72,6 +72,11 @@ func (u *LevelRoomUsage) initLevelRoomUsage(ui int) {
 
 // ---------- MCCLEAN ---------- //
 
+type Perception struct {
+	overallDirtyness 	int
+	items 				RoomState
+}
+
 type Beliefs struct {
 	currentRoom		int
 	perception 		int
@@ -88,6 +93,7 @@ type Desires struct {
 type Intention int
 
 type McClean struct {
+	perception 		Perception
 	beliefs			Beliefs
 	desires			Desires
 	intention		Intention
@@ -102,19 +108,19 @@ func (c *McClean) initMcClean() {
 	} 
 }
 
-// Percept the dirtyness of the current room
 func (m *McClean) percept(l *Level) {
 	var dirtyness int = 0
 	for _, item := range l[m.beliefs.currentRoom] {
 		dirtyness += item
 	}
-	m.beliefs.perception = dirtyness
+	m.perception.overallDirtyness = dirtyness
+	m.perception.items = l[m.beliefs.currentRoom]
 }
 
 func (m *McClean) brf() {
 
 	// update avgDirtyness
-	m.beliefs.avgDirtyness += (float64(m.beliefs.perception) - m.beliefs.avgDirtyness) / 10
+	m.beliefs.avgDirtyness += (float64(m.perception.overallDirtyness) - m.beliefs.avgDirtyness) / 10
 	if m.beliefs.avgDirtyness < 0 {
 		m.beliefs.avgDirtyness = 0
 	}
@@ -123,7 +129,7 @@ func (m *McClean) brf() {
 func (m *McClean) options() {
 	
 	// If current room dirtier then average select cleaning of items as options
-	if float64(m.beliefs.perception) > m.beliefs.avgDirtyness {
+	if float64(m.perception.overallDirtyness) > m.beliefs.avgDirtyness {
 		m.desires.cleanThisRoom = true
 		m.desires.changeRoom = false
 
@@ -134,7 +140,7 @@ func (m *McClean) options() {
 	}
 }
 
-func (m *McClean) filter(l *Level) {
+func (m *McClean) filter() {
 
 	// If desire is to clean any item in the room
 	if m.desires.cleanThisRoom {
@@ -142,7 +148,7 @@ func (m *McClean) filter(l *Level) {
 		// Determine dirtiest item
 		var dirtiest int
 		var maxDirtyness int = 0
-		for i, item := range l[m.beliefs.currentRoom] {
+		for i, item := range m.perception.items {
 			if item > maxDirtyness {
 				maxDirtyness = item
 				dirtiest = i
@@ -170,7 +176,7 @@ func (m *McClean) action(l *Level) {
 	m.percept(l)
 	m.brf()
 	m.options()
-	m.filter(l)
+	m.filter()
 	if m.intention == CHANGE_ROOM {
 		m.changeRoom(l)
 	} else {
