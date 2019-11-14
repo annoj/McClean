@@ -69,18 +69,30 @@ func (u *LevelRoomUsage) initLevelRoomUsage(ui int) {
 	}
 }
 
-// ---------- MCCLEAN ---------- //
+// ---------- BELIEFS ---------- // 
 
-type McClean struct {
+type Beliefs struct {
 	currentRoom		int
 	action			int
 	avgDirtyness	float64
 }
 
+// ---------- DESIRES ---------- //
+
+// ---------- INTENTIONS ------- //
+
+// ---------- MCCLEAN ---------- //
+
+type McClean struct {
+	beliefs			Beliefs
+//	desires			desires
+//	intentions		Intentions
+}
+
 func (c *McClean) initMcClean() {
-	c.currentRoom = 0
-	c.action = 0
-	c.avgDirtyness = 0
+	c.beliefs.currentRoom = 0
+	c.beliefs.action = 0
+	c.beliefs.avgDirtyness = 0
 }
 
 // Determine McClean's next action.
@@ -88,23 +100,23 @@ func (c *McClean) determineNextAction(l *Level) {
 
 	// determine degree of dirty for whole room
 	var dirtyness int = 0
-	for _, item := range l[c.currentRoom] {
+	for _, item := range l[c.beliefs.currentRoom] {
 		dirtyness += item
 	}
 
 	// update avgDirtyness
-	c.avgDirtyness += (float64(dirtyness) - c.avgDirtyness) / 10
-	if c.avgDirtyness < 0 {
-		c.avgDirtyness = 0
+	c.beliefs.avgDirtyness += (float64(dirtyness) - c.beliefs.avgDirtyness) / 10
+	if c.beliefs.avgDirtyness < 0 {
+		c.beliefs.avgDirtyness = 0
 	}
 
 	// if above average
-	if float64(dirtyness) > c.avgDirtyness {
+	if float64(dirtyness) > c.beliefs.avgDirtyness {
 
 			// determine dirtiest item
 			var dirtiest int
 			var maxDirtyness int = 0
-			for i, item := range l[c.currentRoom] {
+			for i, item := range l[c.beliefs.currentRoom] {
 				if item > maxDirtyness {
 					maxDirtyness = item
 					dirtiest = i
@@ -112,26 +124,26 @@ func (c *McClean) determineNextAction(l *Level) {
 			}
 
 			// clean that item
-			c.action = dirtiest
+			c.beliefs.action = dirtiest
 			return
 	} else {
 
 	// else change room
-	c.action = CHANGE_ROOM
+	c.beliefs.action = CHANGE_ROOM
 	}
 }
 
 func (c *McClean) changeRoom(l *Level) {
-	c.currentRoom = (c.currentRoom + 1) % ROOMS_COUNT
+	c.beliefs.currentRoom = (c.beliefs.currentRoom + 1) % ROOMS_COUNT
 }
 
 func (c *McClean) clean(level *Level) {
-	level[c.currentRoom][c.action] = 0
+	level[c.beliefs.currentRoom][c.beliefs.action] = 0
 }
 
 func (c *McClean) doAction(l *Level) {
 	c.determineNextAction(l)
-	if c.action == CHANGE_ROOM {
+	if c.beliefs.action == CHANGE_ROOM {
 		c.changeRoom(l)
 	} else {
 		c.clean(l)
@@ -147,7 +159,7 @@ func printState(l *Level, m *McClean, csv bool) {
 				fmt.Printf("%d,", l[i][j])
 			}
 		}
-		fmt.Printf("%d,%d,%f,%f\n", m.currentRoom, m.action, m.avgDirtyness, l.getAverageDirtyness())
+		fmt.Printf("%d,%d,%f,%f\n", m.beliefs.currentRoom, m.beliefs.action, m.beliefs.avgDirtyness, l.getAverageDirtyness())
 	} else {
 		for i := 0; i < ROOMS_COUNT; i++ {
 			fmt.Printf("Room %d: ", i)
@@ -155,7 +167,7 @@ func printState(l *Level, m *McClean, csv bool) {
 				fmt.Printf("%2d ", l[i][j])
 			}
 		}
-		fmt.Printf("McClean: currentRoom = %d, action = %d, avgDirtness = %2.2f Average Dirtyness: %2.2f\n", m.currentRoom, m.action, m.avgDirtyness, l.getAverageDirtyness())
+		fmt.Printf("McClean: currentRoom = %d, action = %d, avgDirtness = %2.2f Average Dirtyness: %2.2f\n", m.beliefs.currentRoom, m.beliefs.action, m.beliefs.avgDirtyness, l.getAverageDirtyness())
 	}
 }
 
