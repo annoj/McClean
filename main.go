@@ -12,6 +12,7 @@ const(
 	ITEMS_COUNT = 4
 	ROOMS_COUNT = 6
 	CHANGE_ROOM = ITEMS_COUNT + 1
+	ACTIONS_COUNT = CHANGE_ROOM
 )
 
 // ---------- ROOMSTATE ---------- //
@@ -69,7 +70,7 @@ func (u *LevelRoomUsage) initLevelRoomUsage(ui int) {
 	}
 }
 
-// ---------- BELIEFS ---------- // 
+// ---------- MCCLEAN ---------- //
 
 type Beliefs struct {
 	currentRoom		int
@@ -79,18 +80,12 @@ type Beliefs struct {
 	actions			[CHANGE_ROOM]int
 }
 
-// ---------- DESIRES ---------- //
-
 type Desires struct {
 	cleanThisRoom	bool
 	changeRoom		bool
 }
 
-// ---------- INTENTIONS ------- //
-
 type Intention int
-
-// ---------- MCCLEAN ---------- //
 
 type McClean struct {
 	beliefs			Beliefs
@@ -102,50 +97,10 @@ func (c *McClean) initMcClean() {
 	c.beliefs.currentRoom = 0
 	c.beliefs.currentAction = 0
 	c.beliefs.avgDirtyness = 0
-	for i := 0; i == CHANGE_ROOM; i++ {
+	for i := 0; i < ACTIONS_COUNT; i++ {
 		c.beliefs.actions[i] = i
 	} 
 }
-
-/*
-// Determine McClean's next action.
-func (c *McClean) determineNextAction(l *Level) {
-
-	// determine degree of dirty for whole room
-	var dirtyness int = 0
-	for _, item := range l[c.beliefs.currentRoom] {
-		dirtyness += item
-	}
-
-	// update avgDirtyness
-	c.beliefs.avgDirtyness += (float64(dirtyness) - c.beliefs.avgDirtyness) / 10
-	if c.beliefs.avgDirtyness < 0 {
-		c.beliefs.avgDirtyness = 0
-	}
-
-	// if above average
-	if float64(dirtyness) > c.beliefs.avgDirtyness {
-
-			// determine dirtiest item
-			var dirtiest int
-			var maxDirtyness int = 0
-			for i, item := range l[c.beliefs.currentRoom] {
-				if item > maxDirtyness {
-					maxDirtyness = item
-					dirtiest = i
-				}
-			}
-
-			// clean that item
-			c.beliefs.currentAction = dirtiest
-			return
-	} else {
-
-	// else change room
-	c.beliefs.currentAction = CHANGE_ROOM
-	}
-}
-*/
 
 // Percept the dirtyness of the current room
 func (m *McClean) percept(l *Level) {
@@ -203,24 +158,23 @@ func (m *McClean) filter(l *Level) {
 	}
 }
 
-func (c *McClean) changeRoom(l *Level) {
-	c.beliefs.currentRoom = (c.beliefs.currentRoom + 1) % ROOMS_COUNT
+func (m *McClean) changeRoom(l *Level) {
+	m.beliefs.currentRoom = (m.beliefs.currentRoom + 1) % ROOMS_COUNT
 }
 
-func (c *McClean) clean(level *Level) {
-	level[c.beliefs.currentRoom][c.intention] = 0
+func (m *McClean) clean(level *Level) {
+	level[m.beliefs.currentRoom][m.intention] = 0
 }
 
-func (c *McClean) action(l *Level) {
-//	c.determineNextAction(l)
-	c.percept(l)
-	c.brf()
-	c.options()
-	c.filter(l)
-	if c.intention == CHANGE_ROOM {
-		c.changeRoom(l)
+func (m *McClean) action(l *Level) {
+	m.percept(l)
+	m.brf()
+	m.options()
+	m.filter(l)
+	if m.intention == CHANGE_ROOM {
+		m.changeRoom(l)
 	} else {
-		c.clean(l)
+		m.clean(l)
 	}
 }
 
